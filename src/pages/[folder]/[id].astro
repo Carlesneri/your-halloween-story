@@ -1,0 +1,37 @@
+---
+import { getCldImageUrl } from "astro-cloudinary/helpers"
+import Layout from "../../layouts/Layout.astro"
+import { Story } from "../../components/Story"
+import { TABLE_NAME } from "../../CONSTANTS"
+import { db } from "../../db"
+import { storiesTable } from "../../db/schema"
+
+const { id, folder } = Astro.params
+
+const result = await db.select().from(storiesTable).all()
+
+console.log({ result })
+
+//const dbStory =  await getDbStory({ id })
+const imgSrc = `${folder}/${id}`
+
+console.log({ folder, id })
+
+const image = getCldImageUrl({
+	src: imgSrc || "",
+})
+---
+
+<Layout title="Your halloween story">
+	<main>
+		<a href="/">Go home ↩</a>
+
+		<!-- <Story
+			image={image}
+			transformedImage={dbStory?.transformedImage}
+			story={dbStory?.story}
+			prompt={dbStory?.prompt}
+			client:load
+		/> -->
+	</main>
+</Layout>
