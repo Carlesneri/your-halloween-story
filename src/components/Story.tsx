@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "preact/hooks"
-import { getPrompt, getStory } from "../helpers"
+import { getPrompt, getStory, saveStory } from "../helpers"
 import Showdown from "showdown"
 import { getCldImageUrl } from "astro-cloudinary/helpers"
 
@@ -8,51 +8,70 @@ export function Story({
 	story,
 	prompt,
 	transformedImage,
+	imageId,
 }: {
 	image: string
-	story?: string
-	prompt?: string
-	transformedImage?: string
+	story?: string | null
+	prompt?: string | null
+	transformedImage?: string | null
+	imageId: string
 }) {
 	const [storyImage, setStoryImage] = useState(transformedImage || image)
+	const [isLoadingImage, setIsLoadingImage] = useState(false)
 
 	const mdRef = useRef<HTMLDivElement>(null)
 
 	const converter = new Showdown.Converter()
 
 	useEffect(() => {
-		if (!story) return
+		if (story && mdRef.current) {
+			mdRef.current.innerHTML = converter.makeHtml(story)
+		}
 
-		getStory({ image }).then(async (story) => {
-			console.log({ story })
-			if (!story) return
+		if (!story || !transformedImage) {
+			getStory({ image }).then(async (story) => {
+				console.log({ story })
 
-			if (mdRef.current) {
-				mdRef.current.innerHTML = converter.makeHtml(story)
-			}
+				if (mdRef.current) {
+					mdRef.current.innerHTML = converter.makeHtml(story)
+				}
 
-			const imgPrompt = prompt || (await getPrompt(story))
+				if (!prompt) {
+					getPrompt(story).then((newPrompt) => {
+						console.log({ newPrompt })
 
-			console.log({ imgPrompt })
+						if (!transformedImage) {
+							setIsLoadingImage(true)
 
-			if (imgPrompt && !transformedImage) {
-				const transformedImage = getCldImageUrl({
-					src: image || "",
-					replaceBackground: imgPrompt,
-					saturation: "-30",
-					autoBrightness: true,
-					brightness: "-10",
-					art: "fes",
-					aspectRatio: 16 / 9,
-				})
+							const cldTransformedImage = getCldImageUrl({
+								src: image || "",
+								replaceBackground: newPrompt,
+								saturation: "-30",
+								autoBrightness: true,
+								brightness: "-10",
+								art: "fes",
+								crop: {
+									type: "auto",
+									aspectRatio: 16 / 9,
+								},
+							})
 
-				console.log({ transformedImage })
+							console.log({ cldTransformedImage })
 
-				// saveStory({ story, transformedImage, prompt: imgPrompt })
+							saveStory({
+								story,
+								transformedImage: cldTransformedImage,
+								prompt: newPrompt,
+								imageId,
+								originalImage: image,
+							})
 
-				fetcher(transformedImage)
-			}
-		})
+							fetcher(cldTransformedImage)
+						}
+					})
+				}
+			})
+		}
 	}, [])
 
 	function fetcher(url: string) {
@@ -61,6 +80,7 @@ export function Story({
 
 			if (res.ok) {
 				setStoryImage(url)
+				setIsLoadingImage(false)
 				return
 			}
 
@@ -70,14 +90,32 @@ export function Story({
 
 	return (
 		<>
-			<img
-				alt="scary story"
-				id="scary"
-				src={storyImage}
-				class="w-full object-contain my-4 rounded aspect-video"
-			/>
+			<picture class="relative">
+				{isLoadingImage ? (
+					<>
+						<img
+							alt="scary story"
+							id="scary"
+							src={storyImage}
+							class="relative w-full object-contain my-4 rounded aspect-video brightness-50"
+						/>
+						<div class="absolute inset-0 grid place-content-center font-bold text-2xl">
+							Transforming image...
+						</div>
+					</>
+				) : (
+					<img
+						alt="scary story"
+						id="scary"
+						src={storyImage}
+						class="w-full object-contain my-4 rounded aspect-video shadow-scary"
+					/>
+				)}
+			</picture>
 
-			<div ref={mdRef}>{story || "Loading image..."}</div>
+			<div ref={mdRef} class="hall-md max-w-[720px] mx-auto">
+				{"Loading story..."}
+			</div>
 		</>
 	)
 }

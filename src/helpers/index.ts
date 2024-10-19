@@ -1,3 +1,5 @@
+import type { storiesTable } from "../db/schema"
+
 export async function getStory({ image }: { image: string }) {
 	console.log({ image })
 
@@ -20,4 +22,11 @@ export async function getPrompt(story: string) {
 	const prompt = await res.text()
 
 	return prompt
+}
+
+export async function saveStory(data: typeof storiesTable.$inferInsert) {
+	await fetch("/api/save-story", {
+		method: "post",
+		body: JSON.stringify(data),
+	})
 }
