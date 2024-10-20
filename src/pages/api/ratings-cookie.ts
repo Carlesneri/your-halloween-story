@@ -16,7 +16,7 @@ export async function POST({ request, cookies }: APIContext) {
 
 	return new Response(
 		JSON.stringify({
-			hasRated: !!(userRatings as Record<string, string | number>)[id],
+			hasRated: !!(userRatings as Record<string, string | number>)?.[id],
 		})
 	)
 }

@@ -10,6 +10,15 @@ const lastStories = await getLatestStories()
 ---
 
 <Layout title="Your Halloween Story">
+	<h2 class="text-xl my-4">Just upload a picture. We do all the rest!</h2>
+
+	<p>
+		Create a halloween story based in an image. Just upload an interesting
+		picture and the AI will make-up a tale for read or listen. If you dare, of
+		course! We will also transform you picture in order to match with the story.
+		Wait for it and feel the fear!
+	</p>
+
 	<CldUploadWidget
 		uploadPreset="unsigned-image"
 		id="upload-widget"
@@ -22,9 +31,9 @@ const lastStories = await getLatestStories()
 		}}
 	>
 		<button
-			class="text-yellow-200 px-4 py-2 font-bold cursor-pointer my-4 hover:text-blue-50 transition rounded-full border-yellow-200 hover:border-blue-50 border-2"
+			class="text-yellow-200 px-4 py-2 cursor-pointer my-4 hover:text-blue-50 transition rounded-xl bg-slate-600 mx-auto w-full min-h-16 border-yellow-200 hover:border-blue-50 border-2 uppercase"
 		>
-			upload ⬆
+			upload your picture
 		</button>
 	</CldUploadWidget>
 

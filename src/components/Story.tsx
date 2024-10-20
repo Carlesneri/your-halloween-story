@@ -6,7 +6,7 @@ import {
 	updateCookieRatings,
 	updateStory,
 } from "@/helpers"
-import Showdown from "showdown"
+import showdown from "showdown"
 import { getCldImageUrl } from "astro-cloudinary/helpers"
 
 export function Story({
@@ -28,31 +28,39 @@ export function Story({
 	userRating: number
 	numOfRatings: number
 }) {
+	const [isError, setIsError] = useState(false)
 	const [storyImage, setStoryImage] = useState(transformedImage || image)
 	const [isLoadingImage, setIsLoadingImage] = useState(false)
 	const [ratingState, setRatingState] = useState(rating)
 	const [ratingUserState, setRatingUserState] = useState(userRating)
+	const [numOfRatingsState, setNumOfRatingsState] = useState(numOfRatings)
 
 	const mdRef = useRef<HTMLDivElement>(null)
 
-	const converter = new Showdown.Converter()
-
 	const skulls = Array(5).fill(null)
+
+	const errorImage = "/images/error-image.png"
+
+	const converter = new showdown.Converter()
 
 	useEffect(() => {
 		if (story && mdRef.current) {
 			mdRef.current.innerHTML = converter.makeHtml(story)
+			return
 		}
 
 		if (!story || !transformedImage) {
 			getStory({ image }).then(async (story) => {
-				console.log({ story })
+				if (!story) {
+					setIsError(true)
+					return
+				}
 
 				if (mdRef.current) {
 					mdRef.current.innerHTML = converter.makeHtml(story)
 				}
 
-				if (!prompt) {
+				if (story && !prompt) {
 					getPrompt(story).then((newPrompt) => {
 						console.log({ newPrompt })
 
@@ -92,8 +100,6 @@ export function Story({
 
 	function fetcher(url: string) {
 		fetch(url).then((res) => {
-			console.log(res)
-
 			if (res.ok) {
 				setStoryImage(url)
 				setIsLoadingImage(false)
@@ -115,18 +121,20 @@ export function Story({
 
 		const { hasRated } = await updateCookieRatings({ id, value })
 
-		const newNumOfRatings = hasRated ? numOfRatings : numOfRatings + 1
+		if (!hasRated) {
+			const newNumOfRatings = numOfRatingsState + 1
 
-		const newRating =
-			(ratingState * numOfRatings + value) / (newNumOfRatings || 1)
+			const newRating =
+				(ratingState * numOfRatingsState + value) / newNumOfRatings
+			setRatingState(newRating)
+			setNumOfRatingsState(newNumOfRatings)
 
-		setRatingState(newRating)
-
-		updateStory({
-			imageId: imageId,
-			rating: newRating,
-			numOfRatings: newNumOfRatings,
-		})
+			updateStory({
+				imageId: imageId,
+				rating: newRating,
+				numOfRatings: newNumOfRatings,
+			})
+		}
 	}
 
 	return (
@@ -137,7 +145,7 @@ export function Story({
 						<img
 							alt="scary story"
 							id="scary"
-							src={storyImage}
+							src={isError ? errorImage : storyImage}
 							class="relative w-full object-contain my-4 rounded aspect-video brightness-50"
 						/>
 						<div class="absolute inset-0 grid place-content-center font-bold text-2xl">
@@ -148,45 +156,47 @@ export function Story({
 					<img
 						alt="scary story"
 						id="scary"
-						src={storyImage}
+						src={isError ? errorImage : storyImage}
 						class="w-full object-contain my-4 rounded aspect-video shadow-scary"
 					/>
 				)}
 			</picture>
 
-			<div className="flex gap-4 my-4 items-center">
-				<div className="flex gap-2 items-center">
-					{skulls.map((_, i) => {
-						return i >= ratingUserState ? (
-							<button
-								onClick={() => {
-									handleClickSkull({ id: imageId, value: i + 1 })
-								}}
-							>
-								<img
-									src="/images/skull.png"
-									class="brightness-50 h-6 w-auto transition"
-								/>
-							</button>
-						) : (
-							<button
-								onClick={() => {
-									handleClickSkull({ id: imageId, value: i + 1 })
-								}}
-							>
-								<img src="/images/skull.png" class="h-6 w-auto transition" />
-							</button>
-						)
-					})}
-					<span class="text-md text-slate-400">
-						({Number(ratingState).toFixed(1)})
-					</span>
+			{!isError && (
+				<div className="flex gap-4 mt-6 items-center">
+					<div className="flex gap-2 items-center">
+						{skulls.map((_, i) => {
+							return i >= ratingUserState ? (
+								<button
+									onClick={() => {
+										handleClickSkull({ id: imageId, value: i + 1 })
+									}}
+								>
+									<img
+										src="/images/skull.png"
+										class="brightness-50 h-6 w-auto transition"
+									/>
+								</button>
+							) : (
+								<button
+									onClick={() => {
+										handleClickSkull({ id: imageId, value: i + 1 })
+									}}
+								>
+									<img src="/images/skull.png" class="h-6 w-auto transition" />
+								</button>
+							)
+						})}
+						<span class="text-md text-slate-400">
+							({Number(ratingState).toFixed(1)})
+						</span>
+					</div>
+					<div className="audio"></div>
 				</div>
-				<div className="audio"></div>
-			</div>
+			)}
 
 			<div ref={mdRef} class="hall-md max-w-[720px] mx-auto">
-				{"Loading story..."}
+				{isError ? "We are sorry! An error occured." : "Loading story..."}
 			</div>
 		</>
 	)

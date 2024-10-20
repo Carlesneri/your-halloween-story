@@ -1,16 +1,18 @@
 import type { storiesTable } from "../db/schema"
 
 export async function getStory({ image }: { image: string }) {
-	console.log({ image })
+	try {
+		const res = await fetch("/api/image-story", {
+			method: "post",
+			body: JSON.stringify({ image }),
+		})
 
-	const res = await fetch("/api/image-story", {
-		method: "post",
-		body: JSON.stringify({ image }),
-	})
+		const story = await res.text()
 
-	const story = await res.text()
-
-	return story
+		return story
+	} catch (error) {
+		return null
+	}
 }
 
 export async function getPrompt(story: string) {

@@ -13,7 +13,7 @@ const { story } = Astro.props as { story: typeof storiesTable.$inferSelect }
 		<img
 			src={story.transformedImage}
 			alt="story image"
-			class="absolute opacity-30 inset-0 w-full h-full object-cover object-center rounded-xl"
+			class="absolute opacity-30 inset-0 w-full h-full object-cover object-center rounded-xl saturate-0"
 		/>
 		<div data-md={story.story}>
 			<Skeleton />
