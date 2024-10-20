@@ -25,8 +25,32 @@ export async function getPrompt(story: string) {
 }
 
 export async function saveStory(data: typeof storiesTable.$inferInsert) {
-	await fetch("/api/save-story", {
+	await fetch("/api/db-story", {
 		method: "post",
 		body: JSON.stringify(data),
 	})
+}
+
+export async function updateStory(data: typeof storiesTable.$inferInsert) {
+	await fetch("/api/db-story", {
+		method: "put",
+		body: JSON.stringify(data),
+	})
+}
+
+export async function updateCookieRatings({
+	id,
+	value,
+}: {
+	id: string
+	value: string | number
+}) {
+	const res = await fetch("/api/ratings-cookie", {
+		method: "post",
+		body: JSON.stringify({ id, value }),
+	})
+
+	const { hasRated } = await res.json()
+
+	return { hasRated }
 }

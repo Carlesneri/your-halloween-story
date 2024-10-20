@@ -1,5 +1,11 @@
 import { useEffect, useRef, useState } from "preact/hooks"
-import { getPrompt, getStory, saveStory } from "../helpers"
+import {
+	getPrompt,
+	getStory,
+	saveStory,
+	updateCookieRatings,
+	updateStory,
+} from "@/helpers"
 import Showdown from "showdown"
 import { getCldImageUrl } from "astro-cloudinary/helpers"
 
@@ -9,19 +15,29 @@ export function Story({
 	prompt,
 	transformedImage,
 	imageId,
+	rating,
+	userRating = 0,
+	numOfRatings = 0,
 }: {
 	image: string
 	story?: string | null
 	prompt?: string | null
 	transformedImage?: string | null
 	imageId: string
+	rating: number
+	userRating: number
+	numOfRatings: number
 }) {
 	const [storyImage, setStoryImage] = useState(transformedImage || image)
 	const [isLoadingImage, setIsLoadingImage] = useState(false)
+	const [ratingState, setRatingState] = useState(rating)
+	const [ratingUserState, setRatingUserState] = useState(userRating)
 
 	const mdRef = useRef<HTMLDivElement>(null)
 
 	const converter = new Showdown.Converter()
+
+	const skulls = Array(5).fill(null)
 
 	useEffect(() => {
 		if (story && mdRef.current) {
@@ -88,6 +104,31 @@ export function Story({
 		})
 	}
 
+	async function handleClickSkull({
+		id,
+		value,
+	}: {
+		id: string
+		value: number
+	}) {
+		setRatingUserState(value)
+
+		const { hasRated } = await updateCookieRatings({ id, value })
+
+		const newNumOfRatings = hasRated ? numOfRatings : numOfRatings + 1
+
+		const newRating =
+			(ratingState * numOfRatings + value) / (newNumOfRatings || 1)
+
+		setRatingState(newRating)
+
+		updateStory({
+			imageId: imageId,
+			rating: newRating,
+			numOfRatings: newNumOfRatings,
+		})
+	}
+
 	return (
 		<>
 			<picture class="relative">
@@ -112,6 +153,37 @@ export function Story({
 					/>
 				)}
 			</picture>
+
+			<div className="flex gap-4 my-4 items-center">
+				<div className="flex gap-2 items-center">
+					{skulls.map((_, i) => {
+						return i >= ratingUserState ? (
+							<button
+								onClick={() => {
+									handleClickSkull({ id: imageId, value: i + 1 })
+								}}
+							>
+								<img
+									src="/images/skull.png"
+									class="brightness-50 h-6 w-auto transition"
+								/>
+							</button>
+						) : (
+							<button
+								onClick={() => {
+									handleClickSkull({ id: imageId, value: i + 1 })
+								}}
+							>
+								<img src="/images/skull.png" class="h-6 w-auto transition" />
+							</button>
+						)
+					})}
+					<span class="text-md text-slate-400">
+						({Number(ratingState).toFixed(1)})
+					</span>
+				</div>
+				<div className="audio"></div>
+			</div>
 
 			<div ref={mdRef} class="hall-md max-w-[720px] mx-auto">
 				{"Loading story..."}

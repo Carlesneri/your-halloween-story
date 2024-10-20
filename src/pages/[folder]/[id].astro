@@ -5,6 +5,7 @@ import { Story } from "../../components/Story"
 import { db } from "../../db"
 import { storiesTable } from "../../db/schema"
 import { eq } from "drizzle-orm"
+import { RATINGS_COOKIE } from "../../CONSTANTS"
 
 const { id, folder } = Astro.params
 
@@ -21,6 +22,12 @@ const firstStory = dbStory[0] || {}
 const image = getCldImageUrl({
 	src: imgSrc || "",
 })
+
+const userRatingsCookie = Astro.cookies.get(RATINGS_COOKIE)
+
+const userRatings = userRatingsCookie ? userRatingsCookie.json() : {}
+
+const userRating = (userRatings as Record<string, string | number>)?.[id!] || 0
 ---
 
 <Layout title="Your halloween story">
@@ -35,6 +42,9 @@ const image = getCldImageUrl({
 			story={firstStory.story}
 			prompt={firstStory.prompt}
 			imageId={id!}
+			rating={firstStory.rating || 0}
+			userRating={Number(userRating)}
+			numOfRatings={firstStory.numOfRatings || 0}
 			client:load
 		/>
 	</main>
