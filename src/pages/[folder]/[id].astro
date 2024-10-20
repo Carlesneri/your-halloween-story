@@ -2,22 +2,14 @@
 import { getCldImageUrl } from "astro-cloudinary/helpers"
 import Layout from "../../layouts/Layout.astro"
 import { Story } from "../../components/Story"
-import { db } from "../../db"
-import { storiesTable } from "../../db/schema"
-import { eq } from "drizzle-orm"
+import { getStoryByImageId } from "../../db"
 import { RATINGS_COOKIE } from "../../CONSTANTS"
 
 const { id, folder } = Astro.params
 
 const imgSrc = `${folder}/${id}`
 
-const dbStory = await db
-	.select()
-	.from(storiesTable)
-	.where(eq(storiesTable.imageId, id!))
-	.limit(1)
-
-const firstStory = dbStory[0] || {}
+const dbStory = (await getStoryByImageId(id!)) || {}
 
 const image = getCldImageUrl({
 	src: imgSrc || "",
@@ -31,23 +23,17 @@ const userRating = (userRatings as Record<string, string | number>)?.[id!] || 0
 ---
 
 <Layout title="Your halloween story">
-	<main class="max-w-[720px] mx-auto">
-		<div>
-			<a href="/">Go home ↩</a>
-		</div>
-
-		<Story
-			image={image}
-			transformedImage={firstStory.transformedImage}
-			story={firstStory.story}
-			prompt={firstStory.prompt}
-			imageId={id!}
-			rating={firstStory.rating || 0}
-			userRating={Number(userRating)}
-			numOfRatings={firstStory.numOfRatings || 0}
-			client:load
-		/>
-	</main>
+	<Story
+		image={image}
+		transformedImage={dbStory.transformedImage}
+		story={dbStory.story}
+		prompt={dbStory.prompt}
+		imageId={id!}
+		rating={dbStory.rating || 0}
+		userRating={Number(userRating)}
+		numOfRatings={dbStory.numOfRatings || 0}
+		client:load
+	/>
 </Layout>
 
 <style>

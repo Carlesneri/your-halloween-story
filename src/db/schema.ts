@@ -9,4 +9,5 @@ export const storiesTable = sqliteTable(TABLE_NAME, {
 	story: text(),
 	rating: real().default(0),
 	numOfRatings: integer().default(0),
+	createdAt: integer().default(Date.now()),
 })

@@ -1,0 +1,1 @@
+ALTER TABLE `stories` ADD `createdAt` integer DEFAULT 1729419581503;

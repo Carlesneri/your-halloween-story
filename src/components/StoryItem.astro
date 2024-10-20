@@ -1,0 +1,46 @@
+---
+import { FOLDER } from "@/CONSTANTS"
+import type { storiesTable } from "@/db/schema"
+import Skeleton from "@/components/Skeleton.astro"
+
+const { story } = Astro.props as { story: typeof storiesTable.$inferSelect }
+---
+
+<li
+	class="story-item hall-md relative flex gap-4 p-4 rounded-xl bg-slate-600 min-h-12"
+>
+	<a href={`/${FOLDER}/${story.imageId}`} class="w-full">
+		<img
+			src={story.transformedImage}
+			alt="story image"
+			class="absolute opacity-30 inset-0 w-full h-full object-cover object-center rounded-xl"
+		/>
+		<div data-md={story.story}>
+			<Skeleton />
+		</div>
+
+		<footer
+			class="absolute top-0 right-0 p-2 flex items-center w-fit opacity-75 cursor-text"
+			title={`rating ${story.rating}`}
+		>
+			<img src="/images/skull.png" alt="rating skull" class="w-8" />
+			<span>{story.rating}</span>
+		</footer>
+	</a>
+</li>
+
+<style>
+	.story-item {
+		[data-md] {
+			display: -webkit-box;
+			-webkit-box-orient: vertical;
+			-webkit-line-clamp: 7;
+			overflow: hidden;
+
+			h3 {
+				font-weight: bold;
+				font-size: large;
+			}
+		}
+	}
+</style>

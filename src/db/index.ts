@@ -1,7 +1,7 @@
 import { drizzle } from "drizzle-orm/libsql"
 import { createClient } from "@libsql/client"
 import { storiesTable } from "./schema"
-import { eq } from "drizzle-orm"
+import { desc, eq } from "drizzle-orm"
 
 const turso = createClient({
 	url: import.meta.env.TURSO_DATABASE_URL!,
@@ -18,4 +18,34 @@ export const updateStory = async (data: typeof storiesTable.$inferInsert) => {
 		.update(storiesTable)
 		.set(data)
 		.where(eq(storiesTable.imageId, data.imageId!))
+}
+
+export const getStoryByImageId = async (id: string) => {
+	const stories = await db
+		.select()
+		.from(storiesTable)
+		.where(eq(storiesTable.imageId, id))
+		.limit(1)
+
+	return stories[0]
+}
+
+export const getLatestStories = async () => {
+	const stories = await db
+		.select()
+		.from(storiesTable)
+		.orderBy(desc(storiesTable.createdAt))
+		.limit(3)
+
+	return stories
+}
+
+export const getBestRatedStories = async () => {
+	const stories = await db
+		.select()
+		.from(storiesTable)
+		.orderBy(desc(storiesTable.createdAt))
+		.limit(3)
+
+	return stories
 }

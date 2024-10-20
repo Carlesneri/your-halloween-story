@@ -1,45 +1,57 @@
 ---
 import { FOLDER } from "../CONSTANTS"
-import Layout from "../layouts/Layout.astro"
+import Layout from "@/layouts/Layout.astro"
 import { CldUploadWidget } from "astro-cloudinary"
+import StoriesList from "@/components/StoriesList.astro"
+import { getBestRatedStories, getLatestStories } from "@/db"
+
+const bestRatedStories = await getBestRatedStories()
+const lastStories = await getLatestStories()
 ---
 
 <Layout title="Your Halloween Story">
-	<main class="max-w-[750px] mx-auto py-8">
-		<h1 class="text-3xl">Your Halloween Story</h1>
-
-		<CldUploadWidget
-			uploadPreset="unsigned-image"
-			id="upload-widget"
-			options={{
-				folder: FOLDER,
-				sources: ["local", "image_search", "camera"],
-				multiple: false,
-				maxFiles: 1,
-				clientAllowedFormats: ["jpg", "jpeg", "png", "webp"],
-			}}
+	<CldUploadWidget
+		uploadPreset="unsigned-image"
+		id="upload-widget"
+		options={{
+			folder: FOLDER,
+			sources: ["local", "image_search", "camera"],
+			multiple: false,
+			maxFiles: 1,
+			clientAllowedFormats: ["jpg", "jpeg", "png", "webp"],
+		}}
+	>
+		<button
+			class="text-yellow-200 px-4 py-2 font-bold cursor-pointer my-4 hover:text-blue-50 transition rounded-full border-yellow-200 hover:border-blue-50 border-2"
 		>
-			<button
-				class="text-yellow-200 px-4 py-2 font-bold cursor-pointer my-4 hover:text-blue-50 transition rounded-full border-yellow-200 hover:border-blue-50 border-2"
-			>
-				upload ⬆
-			</button>
-		</CldUploadWidget>
+			upload ⬆
+		</button>
+	</CldUploadWidget>
 
-		<a
+	<a
+		hidden
+		id="new-story"
+		class="text-yellow-200 px-4 py-2 font-bold cursor-pointer my-8 hover:text-blue-50 transition hover:border-blue-50"
+	>
+		<img
 			hidden
-			id="new-story"
-			class="text-yellow-200 px-4 py-2 font-bold cursor-pointer my-8 hover:text-blue-50 transition hover:border-blue-50"
-		>
-			<img
-				hidden
-				class="preview object-contain rounded border-2 border-blue-700"
-				width="250"
-				height="250"
-			/>
-			create story
-		</a>
-	</main>
+			class="preview object-contain rounded border-2 border-blue-700"
+			width="250"
+			height="250"
+		/>
+		create story
+	</a>
+
+	{
+		bestRatedStories.length > 0 && (
+			<StoriesList title="Best Rated Stories" stories={bestRatedStories} />
+		)
+	}
+	{
+		lastStories.length > 0 && (
+			<StoriesList title="Latest Stories" stories={lastStories} />
+		)
+	}
 </Layout>
 
 <script>

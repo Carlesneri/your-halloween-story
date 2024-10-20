@@ -1,0 +1,31 @@
+---
+import { storiesTable } from "@/db/schema"
+import StoryItem from "./StoryItem.astro"
+
+const stories: (typeof storiesTable.$inferSelect)[] = Astro.props.stories
+const title: string = Astro.props.title
+---
+
+<div class="my-6">
+	<h3 class="text-xl text-green-600 my-2">{title}</h3>
+	<ul class="stories-list flex flex-col gap-2">
+		{
+			stories.map((story) => {
+				return <StoryItem story={story} />
+			})
+		}
+	</ul>
+</div>
+
+<script>
+	import { Converter } from "showdown"
+
+	const $mdP = document.querySelectorAll(".stories-list [data-md]")
+
+	Array.from($mdP).forEach(($p) => {
+		const mdText = $p.getAttribute("data-md")
+		const text = new Converter().makeHtml(mdText || "")
+
+		$p.innerHTML = text
+	})
+</script>
