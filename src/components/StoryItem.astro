@@ -4,6 +4,8 @@ import type { storiesTable } from "@/db/schema"
 import Skeleton from "@/components/Skeleton.astro"
 
 const { story } = Astro.props as { story: typeof storiesTable.$inferSelect }
+
+const rating = story.rating ? story.rating.toFixed(1) : 0
 ---
 
 <li
@@ -21,10 +23,10 @@ const { story } = Astro.props as { story: typeof storiesTable.$inferSelect }
 
 		<footer
 			class="absolute top-0 right-0 p-2 flex items-center w-fit opacity-75 cursor-text"
-			title={`rating ${story.rating}`}
+			title={`rating ${rating}`}
 		>
 			<img src="/images/skull.png" alt="rating skull" class="w-8" />
-			<span>{story.rating}</span>
+			<span>{rating}</span>
 		</footer>
 	</a>
 </li>
