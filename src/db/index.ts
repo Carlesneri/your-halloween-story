@@ -47,5 +47,5 @@ export const getBestRatedStories = async () => {
 		.orderBy(desc(storiesTable.createdAt))
 		.limit(3)
 
-	return stories
+	return stories.sort((a, b) => (b.rating ?? 0) - (a.rating ?? 0))
 }
