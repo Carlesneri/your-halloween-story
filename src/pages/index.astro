@@ -5,8 +5,10 @@ import { CldUploadWidget } from "astro-cloudinary"
 import StoriesList from "@/components/StoriesList.astro"
 import { getBestRatedStories, getLatestStories } from "@/db"
 
-const bestRatedStories = await getBestRatedStories()
-const lastStories = await getLatestStories()
+const [bestRatedStories, lastStories] = await Promise.all([
+	getBestRatedStories(),
+	getLatestStories(),
+])
 ---
 
 <Layout title="Your Halloween Story">
