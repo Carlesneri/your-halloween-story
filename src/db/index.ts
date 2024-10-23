@@ -31,21 +31,33 @@ export const getStoryByImageId = async (id: string) => {
 }
 
 export const getLatestStories = async () => {
-	const stories = await db
-		.select()
-		.from(storiesTable)
-		.orderBy(desc(storiesTable.createdAt))
-		.limit(3)
+	try {
+		const stories = await db
+			.select()
+			.from(storiesTable)
+			.orderBy(desc(storiesTable.createdAt))
+			.limit(3)
 
-	return stories
+		return stories
+	} catch (error) {
+		console.error(error)
+
+		return []
+	}
 }
 
 export const getBestRatedStories = async () => {
-	const stories = await db
-		.select()
-		.from(storiesTable)
-		.orderBy(desc(storiesTable.createdAt))
-		.limit(3)
+	try {
+		const stories = await db
+			.select()
+			.from(storiesTable)
+			.orderBy(desc(storiesTable.createdAt))
+			.limit(3)
 
-	return stories.sort((a, b) => (b.rating ?? 0) - (a.rating ?? 0))
+		return stories.sort((a, b) => (b.rating ?? 0) - (a.rating ?? 0))
+	} catch (error) {
+		console.error(error)
+
+		return []
+	}
 }
