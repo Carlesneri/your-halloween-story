@@ -22,7 +22,7 @@ export async function POST({ request }: APIContext) {
 					content: [
 						{
 							type: "text",
-							text: `Create a Cloudinary post to remove the background, just a brief explanation of the background in a short sentence, no more than 50 words, no punctuation marks such as commas, periods, etc. You should briefly explain the new background from an original image that inspired the story, to match the story. You should add some objects, like bats, ghosts, vampires, pumpkins, or any other kind of halloween topics.`,
+							text: `Create a Cloudinary post to remove the background, just a brief explanation of the background in a short sentence, no more than 50 words, no punctuation marks such as commas, periods, etc. You should briefly explain the new background from an original image that inspired the tale, to match the story. You should add some objects, like bats, ghosts, vampires, pumpkins, or any other kind of halloween topics.`,
 						},
 					],
 				},

@@ -13,7 +13,7 @@ export async function POST({ request }: APIContext) {
 					content: [
 						{
 							type: "text",
-							text: "Create a short halloween story based in the image, and making-up what is going to happen next. It should be scary. Something dangerous must be perceived in the background. The response should be a markdown with the title, as a ### title and the story, formatted correctly to be readed.",
+							text: "Create a short halloween tale based in the image, and making-up what is going to happen next. It should be scary. Something dangerous must be perceived in the background. The response should be a markdown with the title, as a ### title and the story, formatted correctly to be readed.",
 						},
 						{
 							type: "image_url",

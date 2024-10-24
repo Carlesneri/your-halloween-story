@@ -22,7 +22,7 @@ const userRatings = userRatingsCookie ? userRatingsCookie.json() : {}
 const userRating = (userRatings as Record<string, string | number>)?.[id!] || 0
 ---
 
-<Layout title="Your halloween story">
+<Layout title="Your halloween tale">
 	<Story
 		image={image}
 		transformedImage={dbStory.transformedImage}
