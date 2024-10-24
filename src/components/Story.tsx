@@ -81,8 +81,6 @@ export function Story({
 								},
 							})
 
-							console.log({ cldTransformedImage })
-
 							saveStory({
 								story,
 								transformedImage: cldTransformedImage,
@@ -139,9 +137,14 @@ export function Story({
 	}
 
 	function shareStory() {
-		const canShare = window.navigator.canShare()
-
 		const { href } = document.location
+
+		const shareData = {
+			title: "Your hallowee tale",
+			url: href,
+		}
+
+		const canShare = window.navigator.canShare(shareData)
 
 		if (!canShare) {
 			navigator.clipboard.writeText(href)
@@ -150,10 +153,7 @@ export function Story({
 			return
 		}
 
-		navigator.share({
-			title: "Your hallowee tale",
-			url: href,
-		})
+		navigator.share(shareData)
 	}
 
 	return (
