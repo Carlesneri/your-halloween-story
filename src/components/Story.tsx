@@ -8,6 +8,7 @@ import {
 } from "@/helpers"
 import showdown from "showdown"
 import { getCldImageUrl } from "astro-cloudinary/helpers"
+import { ShareIcon } from "@/components/icons/Share"
 
 export function Story({
 	image,
@@ -137,6 +138,24 @@ export function Story({
 		}
 	}
 
+	function shareStory() {
+		const canShare = window.navigator.canShare()
+
+		const { href } = document.location
+
+		if (!canShare) {
+			navigator.clipboard.writeText(href)
+			alert(`Link copied to clipboard:\n${href}`)
+
+			return
+		}
+
+		navigator.share({
+			title: "Your hallowee tale",
+			url: href,
+		})
+	}
+
 	return (
 		<>
 			<picture class="relative">
@@ -163,8 +182,8 @@ export function Story({
 			</picture>
 
 			{!isError && (
-				<div className="flex gap-4 mt-6 items-center">
-					<div className="flex gap-2 items-center">
+				<div className="flex gap-4 mt-5 mb-2 items-center">
+					<span className="flex gap-2 items-center">
 						{skulls.map((_, i) => {
 							return i >= ratingUserState ? (
 								<button
@@ -190,8 +209,15 @@ export function Story({
 						<span class="text-md text-slate-400">
 							({Number(ratingState).toFixed(1)})
 						</span>
-					</div>
-					<div className="audio"></div>
+					</span>
+					<span>
+						<button
+							onClick={shareStory}
+							class="text-green-400 hover:text-green-200 transition-colors"
+						>
+							<ShareIcon />
+						</button>
+					</span>
 				</div>
 			)}
 
