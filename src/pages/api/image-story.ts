@@ -3,7 +3,6 @@ import { openaiInstance } from "../../openai"
 
 export async function POST({ request }: APIContext) {
 	const { image } = await request.json()
-	console.log({ image })
 
 	try {
 		const storyResponse = await openaiInstance.chat.completions.create({
