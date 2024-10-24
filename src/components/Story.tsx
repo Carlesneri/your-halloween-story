@@ -136,7 +136,7 @@ export function Story({
 		}
 	}
 
-	function shareStory() {
+	async function shareStory() {
 		const { href } = document.location
 
 		const shareData = {
@@ -153,7 +153,7 @@ export function Story({
 			return
 		}
 
-		navigator.share(shareData)
+		await navigator.share(shareData)
 	}
 
 	return (
