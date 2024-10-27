@@ -148,3 +148,29 @@ function isValidJSON(str: string) {
 	}
 	return true
 }
+
+export async function getAudio({ text, id }: { text: string; id: string }) {
+	try {
+		const res = await fetch("/api/speech", {
+			method: "post",
+			body: JSON.stringify({ text, id }),
+		})
+
+		const { speechFile } = await res.json()
+
+		return { speechFile }
+	} catch (error) {
+		return { speechFile: null }
+	}
+}
+
+export async function removeAudio({ id }: { id: string }) {
+	const res = await fetch("/api/speech", {
+		method: "delete",
+		body: JSON.stringify({ id }),
+	})
+
+	const { speechFile } = await res.json()
+
+	return { speechFile }
+}

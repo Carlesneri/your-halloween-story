@@ -1,15 +1,18 @@
-import { useEffect, useState } from "preact/hooks"
+import { useEffect, useRef, useState } from "preact/hooks"
 import {
 	getPrompt,
 	getStory,
 	saveStory,
 	updateRatingInCookie,
 	updateStory,
+	getAudio,
 } from "@/helpers"
 import { getCldImageUrl } from "astro-cloudinary/helpers"
 import { ShareIcon } from "@/components/icons/Share"
 import { DeleteIcon } from "@/components/icons/Delete"
 import { navigate } from "astro:transitions/client"
+import { PlayIcon } from "./icons/PlayIcon"
+import { CloseIcon } from "./icons/CloseIcon"
 
 export function Story({
 	image,
@@ -42,6 +45,10 @@ export function Story({
 	const [ratingUserState, setRatingUserState] = useState(userRating)
 	const [numOfRatingsState, setNumOfRatingsState] = useState(numOfRatings)
 	const [hasFinishedStory, setHasFinishedStory] = useState(false)
+	const [showAudio, setShowAudio] = useState(false)
+	const [isLoadingAudio, setIsLoadingAudio] = useState(false)
+	const [audioSrc, setAudioSrc] = useState<string>("")
+	const audioRef = useRef<HTMLAudioElement>(null)
 
 	const skulls = Array(5).fill(null)
 
@@ -185,6 +192,28 @@ export function Story({
 		navigate("/")
 	}
 
+	async function playTale() {
+		setShowAudio(true)
+
+		if (audioSrc) {
+			return
+		}
+
+		if (storyText) {
+			setIsLoadingAudio(true)
+
+			const { speechFile } = await getAudio({ text: storyText, id: imageId })
+
+			setIsLoadingAudio(false)
+
+			setAudioSrc(`/${speechFile}`)
+		}
+	}
+
+	function handleClickCloseAudio() {
+		setShowAudio(false)
+		audioRef.current?.pause()
+	}
 	return (
 		<>
 			<picture class="relative">
@@ -247,6 +276,17 @@ export function Story({
 							<ShareIcon />
 						</button>
 					</span>
+					{(story || hasFinishedStory) && (
+						<span>
+							<button
+								onClick={playTale}
+								class="text-green-400 hover:text-green-200 transition-colors"
+								title="play tale"
+							>
+								<PlayIcon />
+							</button>
+						</span>
+					)}
 					{(isOwner || !story) && (
 						<span>
 							<button
@@ -259,6 +299,34 @@ export function Story({
 					)}
 				</div>
 			)}
+
+			<section
+				class={`fixed bottom-6 left-0 right-0 w-full max-w-[720px] p-2 mx-auto ${
+					showAudio ? "opacity-1" : "opacity-0"
+				}`}
+			>
+				<div class="relative gap-4 mx-auto rounded-xl p-4 bg-green-700 bg-opacity-90">
+					{isLoadingAudio && (
+						<div class="absolute flex items-center inset-0 p-4">
+							Loading audio...
+						</div>
+					)}
+					<div
+						class={`flex justify-between items-center w-full gap-2 ${
+							isLoadingAudio ? "opacity-10" : ""
+						}`}
+					>
+						<audio src={audioSrc} controls class="w-full" ref={audioRef} />
+
+						<button
+							onClick={handleClickCloseAudio}
+							class="text-red-300 hover:text-red-100 transition-colors"
+						>
+							<CloseIcon width={32} height={32} />
+						</button>
+					</div>
+				</div>
+			</section>
 
 			<div class="hall-md w-full max-w-[720px] mx-auto">
 				{title && <h3 class="text-2xl my-4">{title}</h3>}
