@@ -276,7 +276,8 @@ export function Story({
 							<ShareIcon />
 						</button>
 					</span>
-					{(story || hasFinishedStory) && (
+
+					{/* {(story || hasFinishedStory) && (
 						<span>
 							<button
 								onClick={playTale}
@@ -286,7 +287,8 @@ export function Story({
 								<PlayIcon />
 							</button>
 						</span>
-					)}
+					)} */}
+
 					{(isOwner || !story) && (
 						<span>
 							<button
