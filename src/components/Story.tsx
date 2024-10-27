@@ -3,11 +3,12 @@ import {
 	getPrompt,
 	getStory,
 	saveStory,
-	updateCookieRatings,
+	updateRatingInCookie,
 	updateStory,
 } from "@/helpers"
 import { getCldImageUrl } from "astro-cloudinary/helpers"
 import { ShareIcon } from "@/components/icons/Share"
+import { DeleteIcon } from "@/components/icons/Delete"
 import { navigate } from "astro:transitions/client"
 
 export function Story({
@@ -19,6 +20,7 @@ export function Story({
 	rating,
 	userRating = 0,
 	numOfRatings = 0,
+	isOwner = false,
 }: {
 	image: string
 	story?: string | null
@@ -28,6 +30,7 @@ export function Story({
 	rating: number
 	userRating: number
 	numOfRatings: number
+	isOwner?: boolean
 }) {
 	const [isError, setIsError] = useState(false)
 	const [storyText, setStoryText] = useState(story)
@@ -85,7 +88,7 @@ export function Story({
 						brightness: "-10",
 						art: "fes",
 						crop: {
-							type: "auto",
+							type: "fill",
 							aspectRatio: 16 / 9,
 						},
 					})
@@ -125,13 +128,17 @@ export function Story({
 	}) {
 		setRatingUserState(value)
 
-		const { hasRated } = await updateCookieRatings({ id, value })
+		const { hasPreviousRating } = await updateRatingInCookie({
+			id,
+			rating: value,
+		})
 
-		if (!hasRated) {
+		if (!hasPreviousRating) {
 			const newNumOfRatings = numOfRatingsState + 1
 
 			const newRating =
 				(ratingState * numOfRatingsState + value) / newNumOfRatings
+
 			setRatingState(newRating)
 			setNumOfRatingsState(newNumOfRatings)
 
@@ -240,14 +247,16 @@ export function Story({
 							<ShareIcon />
 						</button>
 					</span>
-					{/* <span>
-						<button
-							onClick={removeStory}
-							class="text-red-400 hover:text-red-200 transition-colors"
-						>
-							Remove
-						</button>
-					</span> */}
+					{(isOwner || !story) && (
+						<span>
+							<button
+								onClick={removeStory}
+								class="text-red-400 hover:text-red-200 transition-colors"
+							>
+								<DeleteIcon />
+							</button>
+						</span>
+					)}
 				</div>
 			)}
 

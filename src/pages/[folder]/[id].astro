@@ -1,9 +1,10 @@
 ---
 import { getCldImageUrl } from "astro-cloudinary/helpers"
-import Layout from "../../layouts/Layout.astro"
-import { Story } from "../../components/Story"
-import { getStoryByImageId } from "../../db"
-import { RATINGS_COOKIE } from "../../CONSTANTS"
+import Layout from "@/layouts/Layout.astro"
+import { Story } from "@/components/Story"
+import { getStoryByImageId } from "@/db"
+import { TALES_COOKIE } from "@/CONSTANTS"
+import type { CookieTale } from "@/env"
 
 const { id, folder } = Astro.params
 
@@ -15,11 +16,15 @@ const image = getCldImageUrl({
 	src: imgSrc || "",
 })
 
-const userRatingsCookie = Astro.cookies.get(RATINGS_COOKIE)
+const userTalesCookie = Astro.cookies.get(TALES_COOKIE)
 
-const userRatings = userRatingsCookie ? userRatingsCookie.json() : {}
+const userTales: CookieTale[] = userTalesCookie ? userTalesCookie.json() : []
 
-const userRating = (userRatings as Record<string, string | number>)?.[id!] || 0
+const userTale = userTales.find(({ id: cookieTaleId }) => cookieTaleId === id)
+
+const userRating = userTale?.rating ?? 0
+
+const isOwner = userTale?.owner
 ---
 
 <Layout title="Your halloween tale">
@@ -32,6 +37,7 @@ const userRating = (userRatings as Record<string, string | number>)?.[id!] || 0
 		rating={dbStory.rating || 0}
 		userRating={Number(userRating)}
 		numOfRatings={dbStory.numOfRatings || 0}
+		isOwner={isOwner}
 		client:load
 	/>
 </Layout>

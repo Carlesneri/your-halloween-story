@@ -79,6 +79,8 @@ export async function saveStory(data: typeof storiesTable.$inferInsert) {
 		method: "post",
 		body: JSON.stringify(data),
 	})
+
+	updateCookie({ id: data.imageId!, owner: true })
 }
 
 export async function updateStory(data: typeof storiesTable.$inferInsert) {
@@ -88,21 +90,42 @@ export async function updateStory(data: typeof storiesTable.$inferInsert) {
 	})
 }
 
-export async function updateCookieRatings({
+export async function updateCookie({
 	id,
-	value,
+	rating,
+	owner,
 }: {
 	id: string
-	value: string | number
+	rating?: number
+	owner?: boolean
 }) {
-	const res = await fetch("/api/ratings-cookie", {
-		method: "post",
-		body: JSON.stringify({ id, value }),
+	const res = await fetch("/api/cookies", {
+		method: "put",
+		body: JSON.stringify({ id, rating, owner }),
 	})
 
-	const { hasRated } = await res.json()
+	const { cookie } = await res.json()
 
-	return { hasRated }
+	return { cookie }
+}
+
+export async function updateRatingInCookie({
+	id,
+	rating,
+	owner,
+}: {
+	id: string
+	rating?: number
+	owner?: boolean
+}) {
+	const res = await fetch("/api/cookies", {
+		method: "put",
+		body: JSON.stringify({ id, rating, owner }),
+	})
+
+	const { cookie, hasPreviousRating } = await res.json()
+
+	return { hasPreviousRating, cookie }
 }
 
 function readChunks(reader: ReadableStreamDefaultReader<Uint8Array>) {
