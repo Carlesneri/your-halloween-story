@@ -20,6 +20,12 @@ export const updateStory = async (data: typeof storiesTable.$inferInsert) => {
 		.where(eq(storiesTable.imageId, data.imageId!))
 }
 
+export const removeStory = async (
+	id: (typeof storiesTable.$inferInsert)["imageId"]
+) => {
+	await db.delete(storiesTable).where(eq(storiesTable.imageId, id!))
+}
+
 export const getStoryByImageId = async (id: string) => {
 	const stories = await db
 		.select()

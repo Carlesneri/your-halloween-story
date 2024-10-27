@@ -1,5 +1,5 @@
 import type { APIContext } from "astro"
-import { saveStory, updateStory } from "@/db"
+import { removeStory, saveStory, updateStory } from "@/db"
 
 export async function POST({ request }: APIContext) {
 	try {
@@ -21,6 +21,19 @@ export async function PUT({ request }: APIContext) {
 		const updatedStory = await updateStory(data)
 
 		return new Response(JSON.stringify(updatedStory))
+	} catch (error) {
+		console.error(error)
+		return new Response("")
+	}
+}
+
+export async function DELETE({ request }: APIContext) {
+	try {
+		const { id } = await request.json()
+
+		const removedStory = await removeStory(id)
+
+		return new Response(JSON.stringify(removedStory))
 	} catch (error) {
 		console.error(error)
 		return new Response("")

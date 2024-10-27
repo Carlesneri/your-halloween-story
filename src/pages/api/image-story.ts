@@ -5,7 +5,7 @@ export async function POST({ request }: APIContext) {
 	const { image } = await request.json()
 
 	try {
-		const storyResponse = await openaiInstance.chat.completions.create({
+		const res = await openaiInstance.chat.completions.create({
 			model: "gpt-4o-mini",
 			messages: [
 				{
@@ -13,7 +13,7 @@ export async function POST({ request }: APIContext) {
 					content: [
 						{
 							type: "text",
-							text: "Create a short halloween tale based in the image, and making-up what is going to happen next. It should be scary. Something dangerous must be perceived in the background. The response should be a markdown with the title, as a ### title and the story, formatted correctly to be readed.",
+							text: "Create a short halloween tale based in the image, and invent what is going to happen next. It should be scary. Something dangerous must be perceived in the background. First line of the story should be the title, must contain just the title text, without format or any other character. It should only contain the title and the story, in plain text.",
 						},
 						{
 							type: "image_url",
@@ -25,11 +25,10 @@ export async function POST({ request }: APIContext) {
 					],
 				},
 			],
+			stream: true,
 		})
 
-		const story = storyResponse.choices[0].message.content
-
-		return new Response(story)
+		return new Response(res.toReadableStream())
 	} catch (error) {
 		console.error(error)
 		return new Response("")

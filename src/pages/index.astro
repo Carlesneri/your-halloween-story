@@ -57,13 +57,13 @@ const [bestRatedStories, lastStories] = await Promise.all([
 	</a>
 
 	{
-		bestRatedStories.length > 0 && (
-			<StoriesList title="Best Rated Stories" stories={bestRatedStories} />
+		lastStories.length > 0 && (
+			<StoriesList title="Latest Stories" stories={lastStories} />
 		)
 	}
 	{
-		lastStories.length > 0 && (
-			<StoriesList title="Latest Stories" stories={lastStories} />
+		bestRatedStories.length > 0 && (
+			<StoriesList title="Best Rated Stories" stories={bestRatedStories} />
 		)
 	}
 </Layout>

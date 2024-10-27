@@ -16,16 +16,3 @@ const title: string = Astro.props.title
 		}
 	</ul>
 </div>
-
-<script>
-	import { Converter } from "showdown"
-
-	const $mdP = document.querySelectorAll(".stories-list [data-md]")
-
-	Array.from($mdP).forEach(($p) => {
-		const mdText = $p.getAttribute("data-md")
-		const text = new Converter().makeHtml(mdText || "")
-
-		$p.innerHTML = text
-	})
-</script>

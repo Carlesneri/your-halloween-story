@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "preact/hooks"
+import { useEffect, useState } from "preact/hooks"
 import {
 	getPrompt,
 	getStory,
@@ -6,9 +6,9 @@ import {
 	updateCookieRatings,
 	updateStory,
 } from "@/helpers"
-import showdown from "showdown"
 import { getCldImageUrl } from "astro-cloudinary/helpers"
 import { ShareIcon } from "@/components/icons/Share"
+import { navigate } from "astro:transitions/client"
 
 export function Story({
 	image,
@@ -30,72 +30,79 @@ export function Story({
 	numOfRatings: number
 }) {
 	const [isError, setIsError] = useState(false)
+	const [storyText, setStoryText] = useState(story)
+	const [title, setTitle] = useState("Loading story...")
+	const [paragraphs, setParagraphs] = useState<string[]>([])
 	const [storyImage, setStoryImage] = useState(transformedImage || image)
 	const [isLoadingImage, setIsLoadingImage] = useState(false)
 	const [ratingState, setRatingState] = useState(rating)
 	const [ratingUserState, setRatingUserState] = useState(userRating)
 	const [numOfRatingsState, setNumOfRatingsState] = useState(numOfRatings)
-
-	const mdRef = useRef<HTMLDivElement>(null)
+	const [hasFinishedStory, setHasFinishedStory] = useState(false)
 
 	const skulls = Array(5).fill(null)
 
 	const errorImage = "/images/error-image.png"
 
-	const converter = new showdown.Converter()
-
 	useEffect(() => {
-		if (story && mdRef.current) {
-			mdRef.current.innerHTML = converter.makeHtml(story)
-			return
-		}
-
-		if (!story || !transformedImage) {
-			getStory({ image }).then(async (story) => {
-				if (!story) {
-					setIsError(true)
-					return
-				}
-
-				if (mdRef.current) {
-					mdRef.current.innerHTML = converter.makeHtml(story)
-				}
-
-				if (story && !prompt) {
-					getPrompt(story).then((newPrompt) => {
-						console.log({ newPrompt })
-
-						if (!transformedImage) {
-							setIsLoadingImage(true)
-
-							const cldTransformedImage = getCldImageUrl({
-								src: image || "",
-								replaceBackground: newPrompt,
-								saturation: "-30",
-								autoBrightness: true,
-								brightness: "-10",
-								art: "fes",
-								crop: {
-									type: "auto",
-									aspectRatio: 16 / 9,
-								},
-							})
-
-							saveStory({
-								story,
-								transformedImage: cldTransformedImage,
-								prompt: newPrompt,
-								imageId,
-								originalImage: image,
-							})
-
-							fetcher(cldTransformedImage)
-						}
-					})
-				}
+		if (!story) {
+			getStory({
+				image,
+				messageUpdater: setStoryText,
+				onFinish: () => setHasFinishedStory(true),
+				onError: () => setIsError(true),
 			})
 		}
 	}, [])
+
+	useEffect(() => {
+		if (storyText) {
+			const lines = storyText.split("\n")
+
+			if (lines.length > 1) {
+				const [title, ...restOfLines] = lines
+
+				setTitle(title)
+
+				setParagraphs(restOfLines)
+			}
+		}
+	}, [storyText])
+
+	useEffect(() => {
+		if (!hasFinishedStory) return
+
+		if (storyImage && !prompt) {
+			getPrompt(storyImage).then((newPrompt) => {
+				if (!transformedImage) {
+					setIsLoadingImage(true)
+
+					const cldTransformedImage = getCldImageUrl({
+						src: image || "",
+						replaceBackground: newPrompt,
+						saturation: "-30",
+						autoBrightness: true,
+						brightness: "-10",
+						art: "fes",
+						crop: {
+							type: "auto",
+							aspectRatio: 16 / 9,
+						},
+					})
+
+					saveStory({
+						story: storyText,
+						transformedImage: cldTransformedImage,
+						prompt: newPrompt,
+						imageId,
+						originalImage: image,
+					})
+
+					fetcher(cldTransformedImage)
+				}
+			})
+		}
+	}, [hasFinishedStory])
 
 	function fetcher(url: string) {
 		fetch(url).then((res) => {
@@ -136,6 +143,12 @@ export function Story({
 		}
 	}
 
+	useEffect(() => {
+		if (isError) {
+			setTitle("We are sorry! An error occured.")
+		}
+	}, [isError])
+
 	async function shareStory() {
 		const { href } = document.location
 
@@ -154,6 +167,15 @@ export function Story({
 		}
 
 		await navigator.share(shareData)
+	}
+
+	async function removeStory() {
+		await fetch("/api/db-story", {
+			method: "delete",
+			body: JSON.stringify({ id: imageId }),
+		})
+
+		navigate("/")
 	}
 
 	return (
@@ -218,11 +240,20 @@ export function Story({
 							<ShareIcon />
 						</button>
 					</span>
+					{/* <span>
+						<button
+							onClick={removeStory}
+							class="text-red-400 hover:text-red-200 transition-colors"
+						>
+							Remove
+						</button>
+					</span> */}
 				</div>
 			)}
 
-			<div ref={mdRef} class="hall-md max-w-[720px] mx-auto">
-				{isError ? "We are sorry! An error occured." : "Loading story..."}
+			<div class="hall-md w-full max-w-[720px] mx-auto">
+				{title && <h3 class="text-2xl my-4">{title}</h3>}
+				{paragraphs && paragraphs.map((p) => <p class="my-4">{p}</p>)}
 			</div>
 		</>
 	)

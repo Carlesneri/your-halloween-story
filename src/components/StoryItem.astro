@@ -5,6 +5,8 @@ import Skeleton from "@/components/Skeleton.astro"
 
 const { story } = Astro.props as { story: typeof storiesTable.$inferSelect }
 
+const [title, ...restOfStory] = story.story ? story.story.split("\n") : []
+
 const rating = story.rating ? story.rating.toFixed(1) : 0
 ---
 
@@ -17,9 +19,16 @@ const rating = story.rating ? story.rating.toFixed(1) : 0
 			alt="story image"
 			class="absolute opacity-30 inset-0 w-full h-full object-cover object-center rounded-xl saturate-0"
 		/>
-		<div data-md={story.story}>
-			<Skeleton />
-		</div>
+		{
+			story ? (
+				<div>
+					<h3>{title}</h3>
+					<p class="rest-of-story">{restOfStory}</p>
+				</div>
+			) : (
+				<Skeleton />
+			)
+		}
 
 		<footer
 			class="absolute top-0 right-0 p-2 flex items-center w-fit opacity-75 cursor-text"
@@ -33,7 +42,7 @@ const rating = story.rating ? story.rating.toFixed(1) : 0
 
 <style>
 	.story-item {
-		[data-md] {
+		.rest-of-story {
 			display: -webkit-box;
 			-webkit-box-orient: vertical;
 			-webkit-line-clamp: 7;
