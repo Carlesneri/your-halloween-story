@@ -27,4 +27,4 @@ pnpm-debug.log*
 .vercel
 
 # speeches
-public/speeches
+public/speeches/*
