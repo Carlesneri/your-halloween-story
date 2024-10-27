@@ -30,6 +30,27 @@ const [bestRatedStories, lastStories] = await Promise.all([
 			multiple: false,
 			maxFiles: 1,
 			clientAllowedFormats: ["jpg", "jpeg", "png", "webp"],
+			// -> Playground: https://demo.cloudinary.com/uw/#/
+			styles: {
+				palette: {
+					window: "#13151A",
+					windowBorder: "#90A0B3",
+					tabIcon: "#FFFFFF",
+					menuIcons: "#5A616A",
+					textDark: "#FFFFFF",
+					textLight: "#FFFFFF",
+					link: "#E879F9",
+					action: "#E879F9",
+					inactiveTabIcon: "#7D7D7D",
+					error: "#F44235",
+					inProgress: "#FFFFFF",
+					complete: "#4ADE80",
+					sourceBg: "#13151A",
+				},
+				fonts: {
+					default: "sans-serif arial",
+				},
+			},
 		}}
 	>
 		<div class="flex justify-center">
