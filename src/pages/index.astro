@@ -86,6 +86,27 @@ const [bestRatedStories, lastStories] = await Promise.all([
 			<StoriesList title="Latest Stories" stories={lastStories} />
 		)
 	}
+
+	<section>
+		<li
+			class="story-item hall-md relative flex gap-4 p-4 rounded-xl bg-slate-600 min-h-12"
+		>
+			<div
+				class="w-full border-regular-blue border-y-2 grid grid-cols-[auto_auto] gap-2 justify-center items-center text-regular-blue px-4 py-4"
+			>
+				<p>Do you want to improve your english conversation skills?</p>
+				<span>
+					<a
+						href="https://www.englishtalks.one"
+						target="_blank"
+						class="flex justify-center items-center gap-2 rounded-full text-yellow-300 py-3 px-5 hover:text-yellow-100 transition w-fit border-2 border-yellow-300 hover:border-yellow-100 bg-gradient-to-br from-pink-700 to-pink-900 font-bold"
+					>
+						Start now
+					</a>
+				</span>
+			</div>
+		</li>
+	</section>
 	{
 		bestRatedStories.length > 0 && (
 			<StoriesList title="Best Rated Stories" stories={bestRatedStories} />

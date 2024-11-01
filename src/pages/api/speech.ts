@@ -17,6 +17,8 @@ export async function POST({ request }: APIContext) {
 		input: text,
 	})
 
+	// upload to S3
+
 	const buffer = Buffer.from(await mp3.arrayBuffer())
 
 	await fs.writeFile(speechPath, buffer)
